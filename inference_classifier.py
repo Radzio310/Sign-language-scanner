@@ -22,6 +22,8 @@ labels_dict = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8
 
 last_time = time.time()
 last_character = ""
+hold_time = time.time()
+new_character = False
 
 while True:
 
@@ -73,15 +75,22 @@ while True:
 
         predicted_character = labels_dict[int(prediction[0])]
 
+
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 4)
         cv2.putText(frame, predicted_character, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 0, 0), 3, cv2.LINE_AA)
 
         # Dodanie funkcji wyświetlającej literę co sekundę
         current_time = time.time()
-        if current_time - last_time >= 1 and predicted_character != last_character:
+        if predicted_character != last_character:
+            new_character = True
+            hold_time = time.time()
+            if current_time - last_time >= 1:
+                last_character = predicted_character
+                last_time = current_time
+        elif time.time() - hold_time > 0.5 and new_character:
             print(predicted_character, end="")
-            last_character = predicted_character
-            last_time = current_time
+            new_character = False
+
 
     cv2.imshow('Sign language recognition app_v2', frame)
     key = cv2.waitKey(1)
